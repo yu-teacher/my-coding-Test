@@ -1,47 +1,33 @@
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 class Solution {
     public int[] solution(String[] operations) {
-		int[] answer = new int[2];
-		int[] tq = new int[operations.length];
-		String[] look = new String[operations.length];
-		List<Integer> arr = new ArrayList<>();
+        PriorityQueue<Integer> minHeap = new PriorityQueue<>();
+        PriorityQueue<Integer> maxHeap = new PriorityQueue<>(Collections.reverseOrder());
 
-		String sum = String.join(" ", operations);
-		String[] split = sum.split(" ");
+        for (String op : operations) {
+            String[] parts = op.split(" ");
+            String command = parts[0];
+            int value = Integer.parseInt(parts[1]);
 
-		int count = 0;
+            if (command.equals("I")) {
+                minHeap.offer(value);
+                maxHeap.offer(value);
+            } else if (!minHeap.isEmpty()) {
+                if (value == 1) {
+                    int max = maxHeap.poll();
+                    minHeap.remove(max);
+                } else {
+                    int min = minHeap.poll();
+                    maxHeap.remove(min);
+                }
+            }
+        }
 
-		for (int i = 0; i < tq.length * 2;) {
-			look[count] = split[i++];
-			tq[count++] = Integer.parseInt(split[i++]);
-		}
-
-		for (int i = 0; i < look.length; i++) {
-			if (look[i].equals("I")) {
-				arr.add(tq[i]);
-			} else {
-				try {
-					if (tq[i] == 1) {
-						arr.remove(Collections.max(arr));
-					} else {
-						arr.remove(Collections.min(arr));
-					}
-				} catch (NoSuchElementException e) {
-                    
-				}
-				
-			}
-		}try {
-			answer[0] = Collections.max(arr);
-			answer[1] = Collections.min(arr);
-		} catch (NoSuchElementException e) {
-
-		}
-		return answer;
-	}
+        if (minHeap.isEmpty()) {
+            return new int[]{0, 0};
+        } else {
+            return new int[]{maxHeap.peek(), minHeap.peek()};
+        }
+    }
 }
